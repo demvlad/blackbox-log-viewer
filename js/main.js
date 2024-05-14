@@ -73,6 +73,7 @@ function BlackboxLogViewer() {
 
         graphLegend = null,
         workspaceSelection = null,
+        workspaceMenu = null,
         fieldPresenter = FlightLogFieldPresenter,
 
         hasVideo = false, hasLog = false, hasMarker = false, // add measure feature
@@ -1033,7 +1034,7 @@ function BlackboxLogViewer() {
         if(item) {
             workspaceGraphConfigs = upgradeWorkspaceFormat(item);
         } else {
-            workspaceGraphConfigs = [];
+            workspaceGraphConfigs = workspaceMenu.getDefaultWorkspace();
         }
 
         onSwitchWorkspace(workspaceGraphConfigs, activeWorkspace);
@@ -1092,6 +1093,8 @@ function BlackboxLogViewer() {
 
         workspaceSelection = new WorkspaceSelection($(".log-workspace-selection"), workspaceGraphConfigs, onSwitchWorkspace, onSaveWorkspace);
         onSwitchWorkspace(workspaceGraphConfigs, workspaceSelection);
+        
+        workspaceMenu = new WorkspaceMenu($("#default_workspaces_menu"), onSwitchWorkspace);
 
         prefs.get('log-legend-hidden', function(item) {
             if (item) {
@@ -1972,6 +1975,11 @@ function BlackboxLogViewer() {
                             console.log('Workspace feature not functioning');
                         }
                         e.preventDefault();
+                    break;
+                    case "W".charCodeAt(0):
+                        if(e.shiftKey) {
+                            workspaceMenu.show();
+                        }
                     break;
                     case "Z".charCodeAt(0): // Ctrl-Z key to toggle between last graph config and current one - undo
                         try {

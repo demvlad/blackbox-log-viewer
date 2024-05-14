@@ -1,4 +1,4 @@
-[
+const ctzsnoozeWorkspace=[
     {
         "title": "All Zoom",
         "graphConfig": [
@@ -3541,4 +3541,4 @@
             }
         ]
     }
-]
+];
