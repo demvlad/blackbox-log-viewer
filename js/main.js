@@ -650,7 +650,7 @@ function BlackboxLogViewer() {
         setVideoInTime(false);
         setVideoOutTime(false);
 
-        activeGraphConfig.adaptGraphs(flightLog, graphConfig, true);
+        activeGraphConfig.adaptGraphs(flightLog, graphConfig);
 
         graph.onSeek = function(offset) {
             //Seek faster
@@ -1002,7 +1002,7 @@ function BlackboxLogViewer() {
         lastGraphConfig = graphConfig; // Remember the last configuration.
         graphConfig = newConfig;
         activeGraphConfig.setRedrawChart(noRedraw ? false : true);
-        activeGraphConfig.adaptGraphs(flightLog, graphConfig, false);
+        activeGraphConfig.adaptGraphs(flightLog, graphConfig);
 
         prefs.set('graphConfig', graphConfig);
     }
