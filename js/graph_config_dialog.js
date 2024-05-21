@@ -152,8 +152,9 @@ function GraphConfigurationDialog(dialog, onSave) {
             if (fields.length === 1) {
                 renderSmoothingOptions(elem, activeFlightLog, fields[0]);
             } else {
+                let fieldCount = elem.parent()[0].childElementCount;
                 for (let i = 0; i < fields.length - 1; ++i) {
-                    const row = renderField(flightLog, fields[i], fields[i].color) ;
+                    const row = renderField(flightLog, fields[i], GraphConfig.PALETTE[fieldCount++].color) ;
                     elem.before(row);
                 }
                 const index = $('select.form-control', elem).prop('selectedIndex');
@@ -262,7 +263,7 @@ function GraphConfigurationDialog(dialog, onSave) {
 
         $("input", graphElem).val(graph.label);
 
-        var fieldCount = graph.fields.length;
+        let fieldCount = graph.fields.length;
 
         // "Add field" button
         $(".add-field-button", graphElem).click(function(e) {
