@@ -19,7 +19,7 @@ function GraphConfigurationDialog(dialog, onSave) {
                     .text(GraphConfig.PALETTE[i].name)
                     .attr('value', GraphConfig.PALETTE[i].color)
                     .css('color', GraphConfig.PALETTE[i].color);
-                if(currentSelection == GraphConfig.PALETTE[i].color) {
+                if (currentSelection == GraphConfig.PALETTE[i].color) {
                     option.attr('selected', 'selected');
                     selectColor.css('background', GraphConfig.PALETTE[i].color)
                                .css('color', GraphConfig.PALETTE[i].color);
@@ -38,7 +38,7 @@ function GraphConfigurationDialog(dialog, onSave) {
                 const option = $('<option></option>')
                     .text(i)
                     .attr('value', i);
-                if(currentSelection == i || (currentSelection==null && i==1)) {
+                if (currentSelection == i || (currentSelection==null && i==1)) {
                     option.attr('selected', 'selected');
                 }
                 selectHeight.append(option);
@@ -84,7 +84,7 @@ function GraphConfigurationDialog(dialog, onSave) {
 
     // Set the current smoothing options for a field
     function renderSmoothingOptions(elem, flightLog, field) {
-        if(elem) {
+        if (elem) {
             // the smoothing is in uS rather than %, scale the value somewhere between 0 and 10000uS
             $('input[name=smoothing]',elem).val((field.smoothing!=null)?(field.smoothing/100).toFixed(0)+'%':(GraphConfig.getDefaultSmoothingForField(flightLog, field.name)/100)+'%');
             if (field.curve != null) {
@@ -137,7 +137,7 @@ function GraphConfigurationDialog(dialog, onSave) {
         renderSmoothingOptions(elem, flightLog, field);
 
         // Set the line width values
-        $('input[name=linewidth]',elem).val((field.lineWidth)?field.lineWidth:1);
+        $('input[name=linewidth]',elem).val((field.lineWidth) ? field.lineWidth : 1);
 
         //Populate the Color Picker
         $('select.color-picker', elem).replaceWith(chooseColor(color));
