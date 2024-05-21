@@ -53,12 +53,12 @@ function GraphConfig(graphConfig) {
             let     colorIndexOffset = 0;
 
             for (var k = 0; k < logFieldNames.length; k++) {
-                        if (logFieldNames[k].match(nameRegex)) {
-                            // forceNewCurve must be true for min max computing extended curves.
-                            const forceNewCurve = true;
-                            fields.push(adaptField(flightLog, $.extend({}, field, {curve: $.extend({}, field.curve), name: logFieldNames[k], friendlyName: FlightLogFieldPresenter.fieldNameToFriendly(logFieldNames[k], flightLog.getSysConfig().debug_mode)}), colorIndexOffset, forceNewCurve));
-                            colorIndexOffset++;
-                        }
+                if (logFieldNames[k].match(nameRegex)) {
+                    // forceNewCurve must be true for min max computing extended curves.
+                    const forceNewCurve = true;
+                    fields.push(adaptField(flightLog, $.extend({}, field, {curve: $.extend({}, field.curve), name: logFieldNames[k], friendlyName: FlightLogFieldPresenter.fieldNameToFriendly(logFieldNames[k], flightLog.getSysConfig().debug_mode)}), colorIndexOffset, forceNewCurve));
+                    colorIndexOffset++;
+                }
             }
         } else {
             // Don't add fields if they don't exist in this log
@@ -71,7 +71,7 @@ function GraphConfig(graphConfig) {
 
     var adaptField = function(flightLog, field, colorIndexOffset, forceNewCurve) {
         const defaultCurve = GraphConfig.getDefaultCurveForField(flightLog, field.name);
-
+        let colorIndex = 0;
         if (field.curve === undefined || forceNewCurve) {
             field.curve = defaultCurve;
         } else {

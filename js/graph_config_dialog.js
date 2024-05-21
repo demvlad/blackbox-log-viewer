@@ -9,6 +9,7 @@ function GraphConfigurationDialog(dialog, onSave) {
         activeFlightLog,
         logGrapher = null,
         prevCfg = null,
+        activeGraphConfig = null,
         cfgMustBeRestored = false;
 
     function chooseColor(currentSelection) {
@@ -125,7 +126,7 @@ function GraphConfigurationDialog(dialog, onSave) {
                 + '</tr>'
             ),
             select = $('select.form-control', elem),
-            selectedFieldName = field ?field.name : false,
+            selectedFieldName = field ? field.name : false,
             i;
 
         for (i = 0; i < offeredFieldNames.length; i++) {
@@ -144,29 +145,21 @@ function GraphConfigurationDialog(dialog, onSave) {
 
         // Add event when selection changed to retrieve the current smoothing settings.
         $('select.form-control', elem).change( function() {
-            var selectedField = {
+            const selectedField = {
                 name: $('select.form-control option:selected', elem).val()
-                    }, matches;
-			var
-            logFieldNames = flightLog.getMainFieldNames();
-			if ((matches = selectedField.name.match(/^(.+)\[all\]$/))) {
-                    var
-                        nameRoot = matches[1],
-                        nameRegex = new RegExp("^" + escapeRegExp(nameRoot) + "\[[0-9]+\]$"),
-                        colorIndexOffset = 0;
-
-                    for (var k = 0; k < logFieldNames.length; k++) {
-                        if (logFieldNames[k].match(nameRegex)) {
-                            // forceNewCurve must be true for min max computing extended curves.
-                            let forceNewCurve = true;
-                            newGraph.fields.push(adaptField($.extend({}, field, {curve: $.extend({}, field.curve), name: logFieldNames[k], friendlyName: FlightLogFieldPresenter.fieldNameToFriendly(logFieldNames[k], flightLog.getSysConfig().debug_mode)}), colorIndexOffset, forceNewCurve));
-                            colorIndexOffset++;
-                        }
-                    }
+            };
+            const fields = activeGraphConfig.extendFields(activeFlightLog, selectedField);
+            if (fields.length === 1) {
+                renderSmoothingOptions(elem, activeFlightLog, fields[0]);
+            } else {
+                for (let i = 0; i < fields.length - 1; ++i) {
+                    const row = renderField(flightLog, fields[i], fields[i].color) ;
+                    elem.before(row);
                 }
-            renderSmoothingOptions(elem, activeFlightLog, selectedField);
-			let row = renderField(flightLog, selectedField, color) ;
-			elem.after(row);
+                const index = $('select.form-control', elem).prop('selectedIndex');
+                $('select.form-control', elem).prop('selectedIndex', index + fields.length);
+                renderSmoothingOptions(elem, activeFlightLog, fields[fields.length - 1]);
+            }
             RefreshCharts();
         });
 
@@ -466,10 +459,12 @@ function GraphConfigurationDialog(dialog, onSave) {
         }
     }
 
-    this.show = function(flightLog, config, grapher) {
+    this.show = function(flightLog, graphConfig, grapher) {
         dialog.modal('show');
         activeFlightLog = flightLog;
         logGrapher = grapher;
+        activeGraphConfig = graphConfig;
+        const config  = activeGraphConfig.getGraphs()
 
         buildOfferedFieldNamesList(flightLog, config);
 
