@@ -120,7 +120,7 @@ function GraphConfig(graphConfig) {
                     // New fields to replace the old ones:
                     {
                         fields:[],
-                    }
+                    },
                 );
 
             for (let j = 0; j < graph.fields.length; j++) {
