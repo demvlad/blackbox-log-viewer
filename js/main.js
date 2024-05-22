@@ -3,7 +3,7 @@
 // Global Level Variables
 var userSettings = {};
 
-var VIEWER_VERSION = getManifestVersion(); // Current version
+const VIEWER_VERSION = getManifestVersion(); // Current version
 
 // these values set the initial dimensions of a secondary window
 // which always opens at the centre of the user's screen
