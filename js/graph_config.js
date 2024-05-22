@@ -76,7 +76,7 @@ function GraphConfig(graphConfig) {
             field.curve = defaultCurve;
         } else {
             if (field.curve.MinMax == undefined)
-                            field.curve.MinMax = defaultCurve.MinMax;
+                field.curve.MinMax = defaultCurve.MinMax;
         }
 
         if (colorIndexOffset!=null && field.color != undefined) { // auto offset the actual color (to expand [all] selections)
