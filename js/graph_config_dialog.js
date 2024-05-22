@@ -49,7 +49,7 @@ function GraphConfigurationDialog(dialog, onSave) {
 
     // Show/Hide remove all button
      function updateRemoveAllButton() {
-         var graphCount = $('.config-graph').length;
+         let graphCount = $('.config-graph').length;
 
          if (graphCount > 0) {
             $('.config-graphs-remove-all-graphs').show();
@@ -61,16 +61,16 @@ function GraphConfigurationDialog(dialog, onSave) {
 
     // Renumber the "Graph X" blocks after additions/deletions
     function renumberGraphIndexes() {
-            var graphIndexes = $('.graph-index-number');
-            var graphCount = graphIndexes.length;
-            for (var i = 0; i < graphCount; i++) {
-                    var currentGraphNumber = i+1;
-                    $(graphIndexes[i]).html(currentGraphNumber);
-                }
-            }
+        let graphIndexes = $('.graph-index-number');
+        let graphCount = graphIndexes.length;
+        for (let i = 0; i < graphCount; i++) {
+            let currentGraphNumber = i+1;
+            $(graphIndexes[i]).html(currentGraphNumber);
+        }
+    }
 
     function renderFieldOption(fieldName, selectedName) {
-        var
+        let
             option = $("<option></option>")
                 .text(FlightLogFieldPresenter.fieldNameToFriendly(fieldName, activeFlightLog.getSysConfig().debug_mode))
                 .attr("value", fieldName);
@@ -112,7 +112,7 @@ function GraphConfigurationDialog(dialog, onSave) {
      * initial selection.
      */
     function renderField(flightLog, field, color) {
-        var
+        const
             elem = $(
                 '<tr class="config-graph-field">'
                     + '<td><select class="form-control"><option value="">(choose a field)</option></select></td>'
@@ -126,10 +126,9 @@ function GraphConfigurationDialog(dialog, onSave) {
                 + '</tr>'
             ),
             select = $('select.form-control', elem),
-            selectedFieldName = field ? field.name : false,
-            i;
+            selectedFieldName = field ? field.name : false;
 
-        for (i = 0; i < offeredFieldNames.length; i++) {
+        for (let i = 0; i < offeredFieldNames.length; i++) {
             select.append(renderFieldOption(offeredFieldNames[i], selectedFieldName));
         }
 
@@ -205,7 +204,7 @@ function GraphConfigurationDialog(dialog, onSave) {
 
 
     function renderGraph(flightLog, index, graph) {
-        var
+        const
             graphElem = $(
                 '<li class="config-graph" id="'+index+'">'
                     + '<dl>'
@@ -273,7 +272,7 @@ function GraphConfigurationDialog(dialog, onSave) {
 
         // "Remove Graph" button
         $(".remove-single-graph-button", graphElem).click(function(e) {
-            var parentGraph = $(this).parents('.config-graph');
+            let parentGraph = $(this).parents('.config-graph');
             parentGraph.remove();
             updateRemoveAllButton();
             RefreshCharts();
@@ -321,20 +320,17 @@ function GraphConfigurationDialog(dialog, onSave) {
     }
 
     function renderGraphs(flightLog, graphs) {
-        var
+        let
             graphList = $(".config-graphs-list", dialog);
 
         graphList.empty();
 
-        for (var i = 0; i < graphs.length; i++) {
+        for (let i = 0; i < graphs.length; i++) {
             graphList.append(renderGraph(flightLog, i, graphs[i]));
         }
     }
 
     function populateExampleGraphs(flightLog, menu) {
-        var
-            i;
-
         menu.empty();
 
         exampleGraphs = GraphConfig.getExampleGraphConfigs(flightLog);
@@ -345,8 +341,8 @@ function GraphConfigurationDialog(dialog, onSave) {
             dividerAfter: true
         });
 
-        for (i = 0; i < exampleGraphs.length; i++) {
-            var
+        for (let i = 0; i < exampleGraphs.length; i++) {
+            let
                 graph = exampleGraphs[i],
                 li = $('<li><a href="#"></a></li>');
 
@@ -363,7 +359,7 @@ function GraphConfigurationDialog(dialog, onSave) {
     }
 
     function convertUIToGraphConfig() {
-        var
+        let
             graphs = [],
             graph,
             field;
@@ -416,7 +412,7 @@ function GraphConfigurationDialog(dialog, onSave) {
 
     // Decide which fields we should offer to the user
     function buildOfferedFieldNamesList(flightLog, config) {
-        var
+        let
             i, j,
             lastRoot = null,
             fieldNames = flightLog.getMainFieldNames(),
@@ -426,7 +422,7 @@ function GraphConfigurationDialog(dialog, onSave) {
 
         for (i = 0; i < fieldNames.length; i++) {
             // For fields with multiple bracketed x[0], x[1] versions, add an "[all]" option
-            var
+            let
                 fieldName = fieldNames[i],
                 matches = fieldName.match(/^(.+)\[[0-9]+\]$/);
 
@@ -454,11 +450,11 @@ function GraphConfigurationDialog(dialog, onSave) {
          * keep that tail servo in the config when we're viewing a quadcopter).
          */
         for (i = 0; i < config.length; i++) {
-            var
+            let
                 graph = config[i];
 
             for (j = 0; j < graph.fields.length; j++) {
-                var
+                let
                     field = graph.fields[j];
 
                 if (!fieldsSeen[field.name]) {
@@ -525,7 +521,7 @@ function GraphConfigurationDialog(dialog, onSave) {
         onSave(convertUIToGraphConfig(), noRedraw);
     }
 
-    var
+    let
         exampleGraphsButton = $(".config-graphs-add"),
         exampleGraphsMenu = $(".config-graphs-add ~ .dropdown-menu"),
         configGraphsList = $('.config-graphs-list');
@@ -541,7 +537,7 @@ function GraphConfigurationDialog(dialog, onSave) {
 
     exampleGraphsButton.dropdown();
     exampleGraphsMenu.on("click", "a", function(e) {
-        var
+        let
             graph = exampleGraphs[$(this).data("graphIndex")],
             graphElem = renderGraph(activeFlightLog, $(".config-graph", dialog).length, graph);
 
@@ -557,7 +553,7 @@ function GraphConfigurationDialog(dialog, onSave) {
     });
 
     // Remove all Graphs button
-    var removeAllGraphsButton = $(".config-graphs-remove-all-graphs");
+    let removeAllGraphsButton = $(".config-graphs-remove-all-graphs");
     removeAllGraphsButton.on("click", function() {
         $('.config-graph').remove();
         updateRemoveAllButton();
