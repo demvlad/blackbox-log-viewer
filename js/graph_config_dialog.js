@@ -404,8 +404,7 @@ function GraphConfigurationDialog(dialog, onSave) {
 
     // Decide which fields we should offer to the user
     function buildOfferedFieldNamesList(flightLog, config) {
-        let
-            i, j,
+        let 
             lastRoot = null,
             fieldNames = flightLog.getMainFieldNames(),
             fieldsSeen = {};
