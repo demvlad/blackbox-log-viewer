@@ -49,7 +49,7 @@ function GraphConfigurationDialog(dialog, onSave) {
 
     // Show/Hide remove all button
      function updateRemoveAllButton() {
-         let graphCount = $('.config-graph').length;
+         const graphCount = $('.config-graph').length;
 
          if (graphCount > 0) {
             $('.config-graphs-remove-all-graphs').show();
@@ -61,8 +61,8 @@ function GraphConfigurationDialog(dialog, onSave) {
 
     // Renumber the "Graph X" blocks after additions/deletions
     function renumberGraphIndexes() {
-        let graphIndexes = $('.graph-index-number');
-        let graphCount = graphIndexes.length;
+        const graphIndexes = $('.graph-index-number');
+        const graphCount = graphIndexes.length;
         for (let i = 0; i < graphCount; i++) {
             let currentGraphNumber = i+1;
             $(graphIndexes[i]).html(currentGraphNumber);
@@ -70,7 +70,7 @@ function GraphConfigurationDialog(dialog, onSave) {
     }
 
     function renderFieldOption(fieldName, selectedName) {
-        let
+        const
             option = $("<option></option>")
                 .text(FlightLogFieldPresenter.fieldNameToFriendly(fieldName, activeFlightLog.getSysConfig().debug_mode))
                 .attr("value", fieldName);
@@ -151,14 +151,20 @@ function GraphConfigurationDialog(dialog, onSave) {
             if (fields.length === 1) {
                 renderSmoothingOptions(elem, activeFlightLog, fields[0]);
             } else {
-                let fieldCount = elem.parent()[0].childElementCount;
+                let colorIndex = $('select.color-picker', elem).prop('selectedIndex')
                 for (let i = 0; i < fields.length - 1; i++) {
-                    const row = renderField(flightLog, fields[i], GraphConfig.PALETTE[fieldCount++].color) ;
+                    const color = GraphConfig.PALETTE[colorIndex++ % GraphConfig.PALETTE.length].color;
+                    const row = renderField(flightLog, fields[i], color) ;
                     elem.before(row);
                 }
+
                 const index = $('select.form-control', elem).prop('selectedIndex');
                 $('select.form-control', elem).prop('selectedIndex', index + fields.length);
-                renderSmoothingOptions(elem, activeFlightLog, fields[fields.length - 1]);
+                $('select.form-control', elem).trigger('change');
+
+                const colorPicker = $('select.color-picker', elem);
+                colorPicker.prop('selectedIndex', colorIndex % GraphConfig.PALETTE.length);
+                colorPicker.trigger('change');
             }
             RefreshCharts();
         });
@@ -262,17 +268,17 @@ function GraphConfigurationDialog(dialog, onSave) {
 
         $("input", graphElem).val(graph.label);
 
-        let fieldCount = graph.fields.length;
-
         // "Add field" button
         $(".add-field-button", graphElem).click(function(e) {
-            fieldList.append(renderField(flightLog, {}, GraphConfig.PALETTE[fieldCount++].color));
+            const colorIndex = $("tbody", graphElem)[0].childElementCount;
+            const color = GraphConfig.PALETTE[colorIndex % GraphConfig.PALETTE.length].color;
+            fieldList.append(renderField(flightLog, {}, color));
             e.preventDefault();
         });
 
         // "Remove Graph" button
         $(".remove-single-graph-button", graphElem).click(function(e) {
-            let parentGraph = $(this).parents('.config-graph');
+            const parentGraph = $(this).parents('.config-graph');
             parentGraph.remove();
             updateRemoveAllButton();
             RefreshCharts();
@@ -284,18 +290,17 @@ function GraphConfigurationDialog(dialog, onSave) {
 
         // Add Field List
         for (let i = 0; i < graph.fields.length; i++) {
-            let fieldElem;
             const extendedFields = activeGraphConfig.extendFields(activeFlightLog, graph.fields[i]);
-            let fieldCount = i + 1;
+            let colorIndex = 0;
             for (const extField of extendedFields) {
-                fieldElem = renderField(flightLog, extField, extField.color ? (extField.color) : (GraphConfig.PALETTE[fieldCount++].color)) ;
+                const color = extField.color ?? GraphConfig.PALETTE[colorIndex++ % GraphConfig.PALETTE.length].color
+                const fieldElem = renderField(flightLog, extField, color);
                 fieldList.append(fieldElem);
             }
         }
 
         fieldList.on('click', 'button', function(e) {
-            let
-                parentGraph = $(this).parents('.config-graph');
+            const parentGraph = $(this).parents('.config-graph');
 
             $(this).parents('.config-graph-field').remove();
 
@@ -314,7 +319,7 @@ function GraphConfigurationDialog(dialog, onSave) {
     }
 
     function renderGraphs(flightLog, graphs) {
-        let
+        const
             graphList = $(".config-graphs-list", dialog);
 
         graphList.empty();
@@ -351,13 +356,9 @@ function GraphConfigurationDialog(dialog, onSave) {
     }
 
     function convertUIToGraphConfig() {
-        let
-            graphs = [],
-            graph,
-            field;
-
+        const graphs = [];
         $(".config-graph", dialog).each(function() {
-            graph = {
+            const graph = {
                fields: [],
                height: 1
             };
@@ -369,7 +370,7 @@ function GraphConfigurationDialog(dialog, onSave) {
                 const fieldName = $("select", this).val();
                 const minimum = $("input[name=MinValue]", this).val();
                 const maximum = $("input[name=MaxValue]", this).val();
-                field = {
+                const field = {
                     name: fieldName,
                     smoothing: parseInt($("input[name=smoothing]", this).val())*100,        // Value 0-100%    = 0-10000uS (higher values are more smooth, 30% is typical)
                     curve: {
@@ -404,10 +405,9 @@ function GraphConfigurationDialog(dialog, onSave) {
 
     // Decide which fields we should offer to the user
     function buildOfferedFieldNamesList(flightLog, config) {
-        let 
-            lastRoot = null,
-            fieldNames = flightLog.getMainFieldNames(),
-            fieldsSeen = {};
+        let     lastRoot = null;
+        const   fieldNames = flightLog.getMainFieldNames(),
+                fieldsSeen = {};
 
         offeredFieldNames = [];
 
@@ -520,7 +520,7 @@ function GraphConfigurationDialog(dialog, onSave) {
 
     exampleGraphsButton.dropdown();
     exampleGraphsMenu.on("click", "a", function(e) {
-        let
+        const
             graph = exampleGraphs[$(this).data("graphIndex")],
             graphElem = renderGraph(activeFlightLog, $(".config-graph", dialog).length, graph);
 
@@ -536,7 +536,7 @@ function GraphConfigurationDialog(dialog, onSave) {
     });
 
     // Remove all Graphs button
-    let removeAllGraphsButton = $(".config-graphs-remove-all-graphs");
+    const removeAllGraphsButton = $(".config-graphs-remove-all-graphs");
     removeAllGraphsButton.on("click", function() {
         $('.config-graph').remove();
         updateRemoveAllButton();
