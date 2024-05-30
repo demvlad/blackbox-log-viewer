@@ -1044,10 +1044,10 @@ function BlackboxLogViewer() {
 
     prefs.get('activeWorkspace', function (id){
         if (id) {
-            activeWorkspace = id
+            activeWorkspace = id;
         }
         else {
-            activeWorkspace = 1
+            activeWorkspace = 0;
         }
 
         onSwitchWorkspace(workspaceGraphConfigs, activeWorkspace);
