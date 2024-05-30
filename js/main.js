@@ -1028,6 +1028,8 @@ function BlackboxLogViewer() {
         };
         onSwitchWorkspace(workspaceGraphConfigs, id)
     }
+    
+    workspaceMenu = new WorkspaceMenu($("#default_workspaces_menu"), onSwitchWorkspace);
 
     // New workspaces feature; local storage of user configurations
     prefs.get('workspaceGraphConfigs', function(item) {
@@ -1093,8 +1095,6 @@ function BlackboxLogViewer() {
 
         workspaceSelection = new WorkspaceSelection($(".log-workspace-selection"), workspaceGraphConfigs, onSwitchWorkspace, onSaveWorkspace);
         onSwitchWorkspace(workspaceGraphConfigs, workspaceSelection);
-        
-        workspaceMenu = new WorkspaceMenu($("#default_workspaces_menu"), onSwitchWorkspace);
 
         prefs.get('log-legend-hidden', function(item) {
             if (item) {
