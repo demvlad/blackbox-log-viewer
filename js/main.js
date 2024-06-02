@@ -1103,6 +1103,7 @@ function BlackboxLogViewer() {
             } else {
                 workspaceGraphConfigs = workspaceMenu.getDefaultWorkspace();
             }
+            onSwitchWorkspace(workspaceGraphConfigs, activeWorkspace);
         });
 
         prefs.get('activeWorkspace', function (id){
@@ -1112,10 +1113,11 @@ function BlackboxLogViewer() {
             else {
                 activeWorkspace = 1;
             }
+            onSwitchWorkspace(workspaceGraphConfigs, activeWorkspace);
         });
 
         workspaceSelection = new WorkspaceSelection($(".log-workspace-selection"), workspaceGraphConfigs, onSwitchWorkspace, onSaveWorkspace);
-        onSwitchWorkspace(workspaceGraphConfigs, activeWorkspace);
+        
 
         prefs.get('log-legend-hidden', function(item) {
             if (item) {
@@ -1434,14 +1436,15 @@ function BlackboxLogViewer() {
                         // Save Current Position then re-calculate all the log information
                         let activePosition = (hasVideo)?video.currentTime:currentBlackboxTime;
 
-                    selectLog(null);
-                    if (hasVideo) {
-                        setVideoTime(activePosition);
-                    } else {
-                        setCurrentBlackboxTime(activePosition);
+                        selectLog(null);
+                        if (hasVideo) {
+                            setVideoTime(activePosition);
+                        } else {
+                            setCurrentBlackboxTime(activePosition);
+                        }
                     }
                 }
-            }),
+            ),
 
             keysDialog = new KeysDialog($("#dlgKeysDialog")),
 
@@ -1471,26 +1474,8 @@ function BlackboxLogViewer() {
                         }
                         updateCanvasSize();
                     }
-                });
-            },
-
-            function(newSettings) { // onSave
-                userSettings = newSettings;
-
-                prefs.set('userSettings', newSettings);
-
-                // refresh the craft model
-                if(graph!=null) {
-                    graph.refreshOptions(newSettings);
-                    graph.refreshLogo();
-                    graph.initializeCraftModel();
-                    if(flightLog.hasGpsData()) {
-                        mapGrapher.setUserSettings(newSettings);
-                    }
-                    updateCanvasSize();
                 }
-
-            }),
+            ),
 
             exportDialog = new VideoExportDialog($("#dlgVideoExport"), function(newConfig) {
                 videoConfig = newConfig;
@@ -2282,10 +2267,10 @@ function BlackboxLogViewer() {
 
         prefs.get('activeWorkspace', function (id){
             if (id) {
-                activeWorkspace = id
+                activeWorkspace = id;
             }
             else {
-                activeWorkspace = 1
+                activeWorkspace = 1;
             }
         });
         onSwitchWorkspace(workspaceGraphConfigs, activeWorkspace);
