@@ -1110,7 +1110,7 @@ function BlackboxLogViewer() {
         });
 
         workspaceSelection = new WorkspaceSelection($(".log-workspace-selection"), workspaceGraphConfigs, onSwitchWorkspace, onSaveWorkspace);
-        
+
 
         prefs.get('log-legend-hidden', function(item) {
             if (item) {
