@@ -143,35 +143,37 @@ GraphSpectrumCalc._dataLoadFrequencyVsX = function(vsFieldNames, minValue = Infi
   const flightSamples = this._getFlightSamplesFreqVsX(vsFieldNames, minValue, maxValue);
   // We divide it into FREQ_VS_THR_CHUNK_TIME_MS FFT chunks, we calculate the average throttle
   // for each chunk. We use a moving window to get more chunks available.
+  // Use mirror input signal to get more frequency resolution from 1/0.3=3.3Hz to 1/0.6=1.6Hz
   const fftChunkLength = Math.round(this._blackBoxRate * FREQ_VS_THR_CHUNK_TIME_MS / 1000);
   const fftChunkWindow = Math.round(fftChunkLength / FREQ_VS_THR_WINDOW_DIVISOR);
-  const fftBufferSize = this.getNearPower2Value(fftChunkLength);
+  const mirroredDataLength = 2 * fftChunkLength;
+  const fftBufferSize = this.getNearPower2Value(mirroredDataLength);  // Use mirror input data to get more freq resolution
+  const fftMirroredInput = new Float64Array(fftBufferSize);
   const magnitudeLength = Math.floor(fftBufferSize / 2);
   let maxNoise = 0; // Stores the maximum amplitude of the fft over all chunks
    // Matrix where each row represents a bin of vs values, and the columns are amplitudes at frequencies
   const matrixFftOutput = new Array(NUM_VS_BINS).fill(null).map(() => new Float64Array(fftBufferSize * 2));
   const numberSamples = new Uint32Array(NUM_VS_BINS); // Number of samples in each vs value, used to average them later.
   const fft = new FFT.complex(fftBufferSize, false);
+  const fftOutput = new Float64Array(fftBufferSize * 2);
 
   for (let fftChunkIndex = 0; fftChunkIndex + fftChunkLength < flightSamples.samples.length; fftChunkIndex += fftChunkWindow) {
 
-    const fftInput = new Float64Array(fftBufferSize);
-    let fftOutput = new Float64Array(fftBufferSize * 2);
-
+    // Use mirror input signal to get more frequency resolution from 1/0.3=3.3Hz to 1/0.6=1.6Hz
     const samples = flightSamples.samples.slice(fftChunkIndex, fftChunkIndex + fftChunkLength);
-    fftInput.set(samples);
+    fftMirroredInput.set(samples);
+    fftMirroredInput.set(samples.reverse(), fftChunkLength);
 
     // Hanning window applied to input data, without padding zeros
     if (userSettings.analyserHanning) {
-      this._hanningWindow(fftInput, fftChunkLength);
+      this._hanningWindow(fftMirroredInput, mirroredDataLength);
     }
 
-    fft.simple(fftOutput, fftInput, 'real');
+    fft.simple(fftOutput, fftMirroredInput, 'real');
 
-    fftOutput = fftOutput.slice(0, fftBufferSize); // The fft output contains two side spectrum, we use the first part only to get one side
     const magnitudes = new Float64Array(magnitudeLength);
-
 //  Compute magnitude
+//  The fft output contains two side spectrum, we use the first part only to get one side
     for (let i = 0; i < magnitudeLength; i++) {
       const re = fftOutput[2 * i],
             im = fftOutput[2 * i + 1];
@@ -231,21 +233,26 @@ GraphSpectrumCalc._dataLoadPowerSpectralDensityVsX = function(vsFieldNames, minV
 
   // We divide it into FREQ_VS_THR_CHUNK_TIME_MS FFT chunks, we calculate the average throttle
   // for each chunk. We use a moving window to get more chunks available.
+  // Use mirror input signal to get more frequency resolution from 1/0.3=3.3Hz to 1/0.6=1.6Hz
   const fftChunkLength = Math.round(this._blackBoxRate * FREQ_VS_THR_CHUNK_TIME_MS / 1000);
   const fftChunkWindow = Math.round(fftChunkLength / FREQ_VS_THR_WINDOW_DIVISOR);
 
-  let maxNoise = 0; // Stores the maximum amplitude of the fft over all chunks
-  let psdLength = 0;
    // Matrix where each row represents a bin of vs values, and the columns are amplitudes at frequencies
-  const BACKGROUND_PSD_VALUE = -200;
   let matrixPsdOutput;
-
+  let psdLength = 0;
+  const mirroredDataLength = 2 * fftChunkLength;
+  const fftMirroredInput = new Float64Array(mirroredDataLength);
   const numberSamples = new Uint32Array(NUM_VS_BINS); // Number of samples in each vs value, used to average them later.
+  let maxNoise = 0; // Stores the maximum amplitude of the fft over all chunks
+  const BACKGROUND_PSD_VALUE = -200;
+
 
   for (let fftChunkIndex = 0; fftChunkIndex + fftChunkLength < flightSamples.samples.length; fftChunkIndex += fftChunkWindow) {
-
-    const fftInput = flightSamples.samples.slice(fftChunkIndex, fftChunkIndex + fftChunkLength);
-    const psd = this._psd(fftInput, fftChunkLength, 0, 'density'); // Using the one segment with all chunks fftChunkLength size, it will extended at power at 2 size inside _psd() - _fft_segmented()
+    // Use mirror input signal to get more frequency resolution from 1/0.3=3.3Hz to 1/0.6=1.6Hz
+    const dataInput = flightSamples.samples.slice(fftChunkIndex, fftChunkIndex + fftChunkLength);
+    fftMirroredInput.set(dataInput);
+    fftMirroredInput.set(dataInput.reverse(), fftChunkLength);
+    const psd = this._psd(fftMirroredInput, mirroredDataLength, 0, 'density'); // Using the one segment with all chunks fftChunkLength size, it will extended at power at 2 size inside _psd() - _fft_segmented()
     maxNoise = Math.max(psd.max, maxNoise);
     // The _psd() can extend fft data size. Set psdLength and create matrix by first using
     if (matrixPsdOutput == undefined) {
