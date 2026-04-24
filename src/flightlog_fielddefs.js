@@ -570,7 +570,7 @@ export function adjustFieldDefsList(firmwareType, firmwareVersion) {
       DEBUG_MODE.splice(DEBUG_MODE.indexOf("DUAL_GYRO_SCALED"), 1, "MULTI_GYRO_SCALED");
     }
     if (semver.gte(firmwareVersion, "2026.6.0")) {
-      DEBUG_MODE.push("OPTICALFLOW_POS", "POSITION_SOURCE", "AUTOPILOT_PID");
+      DEBUG_MODE.push("AUTOPILOT_PID", "POSITION_NAV", "PLANE_SAS");
     }
 
     ACC_HARDWARE = makeReadOnly(ACC_HARDWARE);
@@ -630,7 +630,7 @@ export function adjustFieldDefsList(firmwareType, firmwareVersion) {
       }
     }
     if (semver.gte(firmwareVersion, "2026.6.0")) {
-      FLIGHT_LOG_FLIGHT_MODE_NAME.splice(FLIGHT_LOG_FLIGHT_MODE_NAME.indexOf("GPSRESCUE") + 1, 0, "AUTOPILOT");
+      FLIGHT_LOG_FLIGHT_MODE_NAME.splice(FLIGHT_LOG_FLIGHT_MODE_NAME.indexOf("GPSRESCUE") + 1, 0, "AUTOPILOT", "PLANE_SAS");
     }
 
     FLIGHT_LOG_FLIGHT_MODE_NAME = makeReadOnly(FLIGHT_LOG_FLIGHT_MODE_NAME);
