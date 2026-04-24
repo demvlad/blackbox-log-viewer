@@ -30,7 +30,7 @@ import {
  * Window based smoothing of fields is offered.
  */
 export function FlightLog(logData) {
-  let ADDITIONAL_COMPUTED_FIELD_COUNT = 21 /** attitude + PID_SUM + PID_ERROR + RCCOMMAND_SCALED + GPS coord, distance, azimuth, trajectory tilt angle **/,
+  let ADDITIONAL_COMPUTED_FIELD_COUNT = 24 /** attitude + PID_SUM + PID_ERROR + RCCOMMAND_SCALED + GPS coord, distance, azimuth, trajectory tilt angle, PSAS Sum **/,
     that = this,
     logIndex = 0,
     logIndexes = new FlightLogIndex(logData),
@@ -299,6 +299,12 @@ export function FlightLog(logData) {
         // GPS trajectory tilt angle
         fieldNames.push("gpsTrajectoryTiltAngle");
       }
+    }
+
+    if (fieldNames.includes("PSAS_pitch[0]") ||
+        fieldNames.includes("PSAS_roll[0]") ||
+        fieldNames.includes("PSAS_yaw[0]")) {
+        fieldNames.push("psasSum[0]", "psasSum[1]", "psasSum[2]");
     }
 
     fieldNameToIndex = {};
@@ -680,7 +686,27 @@ export function FlightLog(logData) {
         fieldNameToIndex["axisS[2]"],
       ],
     ];
-    
+
+    let psasDATA = [
+      [
+        fieldNameToIndex["PSAS_roll[0]"],
+        fieldNameToIndex["PSAS_roll[1]"],
+      ],
+      [
+        fieldNameToIndex["PSAS_pitch[0]"],
+        fieldNameToIndex["PSAS_pitch[1]"],
+        fieldNameToIndex["PSAS_pitch[2]"],
+        fieldNameToIndex["PSAS_pitch[3]"],
+        fieldNameToIndex["PSAS_pitch[4]"],
+      ],
+      [
+        fieldNameToIndex["PSAS_yaw[0]"],
+        fieldNameToIndex["PSAS_yaw[1]"],
+        fieldNameToIndex["PSAS_yaw[2]"],
+        fieldNameToIndex["PSAS_yaw[3]"],
+      ],
+    ];
+
     const numSatIndex = fieldNameToIndex["GPS_numSat"];
 
     let sourceChunkIndex;
@@ -727,6 +753,10 @@ export function FlightLog(logData) {
 
     if (!gpsVelNED[0]) {
       gpsVelNED = false;
+    }
+
+    if (!psasDATA[0][0] && !psasDATA[1][0] && !psasDATA[2][0]) {
+        psasDATA = false;
     }
 
     sourceChunkIndex = 0;
@@ -937,6 +967,32 @@ export function FlightLog(logData) {
               trajectoryTiltAngle = -Math.asin(angleSin) * 180 / Math.PI; // [degree], if velo is up then >0
             }
             destFrame[fieldIndex++] = trajectoryTiltAngle;
+          }
+
+          if (psasDATA) {
+            let psasRollSum = 0;
+            for (const rollDataIndex of psasDATA[AXIS.ROLL]) {
+              if (rollDataIndex != undefined) {
+                psasRollSum += srcFrame[rollDataIndex];
+              }
+            }
+            destFrame[fieldIndex++] = psasRollSum;
+
+            let psasPitchSum = 0;
+            for (const pitchDataIndex of psasDATA[AXIS.PITCH]) {
+              if (pitchDataIndex != undefined) {
+                psasPitchSum += srcFrame[pitchDataIndex];
+              }
+            }
+            destFrame[fieldIndex++] = psasPitchSum;
+
+            let psasYawSum = 0;
+            for (const yawDataIndex of psasDATA[AXIS.YAW]) {
+              if (yawDataIndex != undefined) {
+                psasYawSum += srcFrame[yawDataIndex];
+              }
+            }
+            destFrame[fieldIndex++] = psasYawSum;
           }
 
           // Remove empty fields at the end

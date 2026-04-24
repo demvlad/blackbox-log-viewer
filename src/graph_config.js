@@ -503,7 +503,8 @@ GraphConfig.getDefaultCurveForField = function (flightLog, fieldName) {
     } else if (
       fieldName.match(/^PSAS_pitch\[/) ||
       fieldName.match(/^PSAS_roll\[/) ||
-      fieldName.match(/^PSAS_yaw\[/)
+      fieldName.match(/^PSAS_yaw\[/) ||
+      fieldName.match(/^psasSum\[/)
     ) {
       return {
         power: 1,
